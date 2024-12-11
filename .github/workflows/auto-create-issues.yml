@@ -43,12 +43,13 @@ jobs:
           sleep 5
           
           # Verificar si la aplicación está corriendo correctamente
-          if ! curl -f http://127.0.0.1:5000; then
-            echo "Initialization failed" > error.log
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:5000)
+          if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 300 ]; then
+            echo "Initialization failed with status $HTTP_STATUS" > error.log
           fi
           
           # Verificar si hay errores
-          if [ -s error.log ]; then
+          if [ -f error.log ]; then
             echo "error=true" >> $GITHUB_ENV
           else
             echo "error=false" >> $GITHUB_ENV
