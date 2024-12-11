@@ -42,17 +42,11 @@ jobs:
           nohup flask run --host=0.0.0.0 --reload --debug > app.log 2>&1 & 
           
           # Esperar a que la aplicación se inicialice
-          for i in {1..5}; do
-            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000)
-            if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 300 ]; then
-              break
-            fi
-            sleep 3
-          done
+          sleep 15
           
-          # Verificar si la aplicación está corriendo correctamente
-          if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 300 ]; then
-            echo "Initialization failed with status $HTTP_STATUS" > error.log
+          # Verificar si hay errores en el log de la aplicación
+          if grep -i "error" app.log; then
+            echo "Initialization failed. Check app.log for details." > error.log
           fi
           
           # Verificar si hay errores
