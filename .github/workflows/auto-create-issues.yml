@@ -42,7 +42,7 @@ jobs:
           nohup flask run --host=0.0.0.0 --reload --debug > app.log 2>&1 & 
           
           # Esperar a que la aplicación se inicialice
-          sleep 15
+          sleep 10
           
           # Verificar si hay errores en el log de la aplicación
           if grep -i "error" app.log; then
