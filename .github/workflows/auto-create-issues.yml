@@ -40,7 +40,7 @@ jobs:
           sleep 5
           
           # Verificar si la aplicación está corriendo correctamente
-          curl -f http://localhost:5000 || echo "Initialization failed" > error.log
+          curl -f http://127.0.0.1:5000 || echo "Initialization failed" > error.log
           
           # Verificar si hay errores
           if [ -s error.log ]; then
