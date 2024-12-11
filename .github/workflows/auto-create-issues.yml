@@ -43,7 +43,7 @@ jobs:
           sleep 5
           
           # Verificar si la aplicación está corriendo correctamente
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000)
+          HTTP_STATUS=$(curl -w "%{http_code}" http://localhost:5000)
           if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 300 ]; then
             echo "Initialization failed with status $HTTP_STATUS" > error.log
           fi
