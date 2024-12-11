@@ -70,6 +70,11 @@ jobs:
             echo "error=true" >> $GITHUB_ENV
           fi
 
+          # Imprimir el contenido de access_error.log si existe
+          if [ -f access_error.log ]; then
+            cat access_error.log
+          fi
+
       - name: Create an issue for bugs
         if: env.error == 'true'
         uses: peter-evans/create-issue-from-file@v5
