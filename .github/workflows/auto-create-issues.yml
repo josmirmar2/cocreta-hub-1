@@ -1,20 +1,51 @@
-name: Auto Create Issue
+name: Bug Report on Application Error
 
 on:
-  schedule:
-    - cron: '0 9 * * 1'
-  workflow_dispatch:
+  workflow_dispatch: 
+  push: 
+    branches:
+      - main
 
 jobs:
-  create-issue:
+  check-for-bugs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create a new issue
-        uses: peter-evans/create-issue@v4
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Initialize Application
+        id: run-app
+        run: |
+          # Crear y activar el entorno virtual
+          python3.12 -m venv venv
+          source venv/bin/activate
+          
+          # Actualizar pip
+          pip install --upgrade pip
+          
+          # Instalar dependencias
+          pip install -r requirements.txt
+          pip install -e ./
+          
+          # Iniciar la aplicación Flask
+          flask run --host=0.0.0.0 --reload --debug > app.log 2>&1 || echo "Initialization failed" > error.log
+          
+          # Verificar si hay errores
+          if [ -s error.log ]; then
+            echo "error=true" >> $GITHUB_ENV
+          else
+            echo "error=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create an issue for bugs
+        if: ${{ steps.run-app.outputs.error == 'true' }}
+        uses: peter-evans/create-issue-from-file@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "Weekly Status Update"
-          body: |
-            This is a reminder to provide your weekly status update. Please comment below with your updates.
-          labels: "weekly-update, reminder"
+          title: "Bug Detected: Initialization Error"
+          content-filepath: ./AUTO-ISSUE.md
+          labels: |
+            bug
+            hel wanted
+            high
