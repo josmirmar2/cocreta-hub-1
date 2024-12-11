@@ -50,7 +50,7 @@ jobs:
           fi
 
       - name: Create an issue for bugs
-        if: ${{ steps.run-app.outputs.error == 'true' }}
+        if: env.error == 'true'
         uses: peter-evans/create-issue-from-file@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -62,7 +62,7 @@ jobs:
             high
 
       - name: Print logs
-        if: ${{ steps.run-app.outputs.error == 'true' }}
+        if: env.error == 'true'
         run: |
           echo "Initialization failed. Printing logs:"
           cat error.log
