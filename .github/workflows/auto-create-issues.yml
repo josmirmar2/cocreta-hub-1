@@ -19,8 +19,7 @@ jobs:
         with:
           python-version: 3.12
 
-      - name: Initialize Application
-        id: run-app
+      - name: Install dependencies
         run: |
           # Crear y activar el entorno virtual
           python -m venv venv
@@ -31,11 +30,14 @@ jobs:
           
           # Instalar dependencias
           pip install -r requirements.txt
-          pip install -e ./
           
+
+      - name: Initialice app
+        id: run-app
+        run: |
           # Iniciar la aplicación Flask
           flask run --host=0.0.0.0 --reload --debug > app.log 2>&1 || echo "Initialization failed" > error.log
-          
+                    
           # Verificar si hay errores
           if [ -s error.log ]; then
             echo "error=true" >> $GITHUB_ENV
