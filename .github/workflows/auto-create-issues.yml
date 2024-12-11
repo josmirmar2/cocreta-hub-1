@@ -1,0 +1,20 @@
+name: Auto Create Issue
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create a new issue
+        uses: peter-evans/create-issue@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Weekly Status Update"
+          body: |
+            This is a reminder to provide your weekly status update. Please comment below with your updates.
+          labels: "weekly-update, reminder"

@@ -1,0 +1,22 @@
+name: Release Automation
+
+on:
+  push:
+    tags:
+      - 'v*' 
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Extract tag information
+        id: extract_tag
+        run: |
+          echo "TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          echo "TAG_TYPE=${GITHUB_REF##*/}" | grep -q 'Fix' && echo "RELEASE_TYPE=minor" >> $GITHUB_ENV || true
+          echo "TAG_TYPE=${GITHUB_REF##*/}" | grep -q 'Feat' && echo "RELEASE_MAJORa" :Automation PR=>!!+ > GUB"""F
