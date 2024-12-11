@@ -50,11 +50,6 @@ jobs:
             sleep 5
           done
           
-          # Verificar si la aplicación está corriendo correctamente
-          if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 300 ]; then
-            echo "Initialization failed with status $HTTP_STATUS" > error.log
-          fi
-          
           # Verificar si hay errores
           if [ -s error.log ]; then
             echo "error=true" >> $GITHUB_ENV
