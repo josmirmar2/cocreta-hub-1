@@ -46,13 +46,12 @@ jobs:
           echo "Starting Flask application in the background..."
           nohup flask run --host=0.0.0.0 --reload --debug > app.log 2>&1 & 
           
-          echo "Waiting for the application to initialize..."
-          sleep 3
-          
           echo "Checking for errors in app.log..."
           if grep -i "error" app.log; then
             echo "Initialization failed. Check app.log for details." > error.log
           fi
+
+          sleep 3
           
           echo "Checking if error.log exists and is not empty..."
           if [ -s error.log ]; then
