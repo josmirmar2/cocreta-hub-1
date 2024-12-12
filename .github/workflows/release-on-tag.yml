@@ -37,8 +37,11 @@ jobs:
           # Inicializar el tipo de release como el menos importante
           RELEASE_TYPE="unknown"
 
-          # Iterar sobre todos los commits y buscar los tipos
-          while IFS= read -r COMMIT_MESSAGE; do
+          # Obtener el rango de commits entre la última versión y HEAD
+          COMMITS=$(git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"%s")
+
+           # Iterar sobre todos los commits y buscar los tipos
+          for COMMIT_MESSAGE in $COMMITS; do
             echo "Procesando commit: $COMMIT_MESSAGE"
             if echo "$COMMIT_MESSAGE" | grep -qE '^feat\('; then
               RELEASE_TYPE="major"
