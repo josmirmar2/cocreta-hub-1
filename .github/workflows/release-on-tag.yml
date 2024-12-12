@@ -20,29 +20,23 @@ jobs:
           echo "COMMIT_MESSAGE=${COMMIT_MESSAGE}" >> $GITHUB_ENV
           
           if echo "${COMMIT_MESSAGE}" | grep -q 'fix('; then
-            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          elif echo "${COMMIT_MESSAGE}" | grep -q 'feat('; then
             echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
+          elif echo "${COMMIT_MESSAGE}" | grep -q 'feat('; then
+            echo "RELEASE_TYPE=major" >> $GITHUB_ENV
           elif echo "${COMMIT_MESSAGE}" | grep -q 'refactor('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
           elif echo "${COMMIT_MESSAGE}" | grep -q 'test('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
           else
             echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
-          
+
       - name: Create Release
-        if: env.RELEASE_TYPE != 'unknown'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
-          body: |
-            Automated release based on commit message:
-            ${{ env.COMMIT_MESSAGE }}
+          release_name: "Release ${{ github.sha }}"
+          body: "Automated release based on commit message."
           draft: false
           prerelease: false
-
-      - name: Print release type
-        run: echo "The release type is ${{ env.RELEASE_TYPE }}"
