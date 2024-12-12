@@ -1,19 +1,33 @@
-name: Notify PR Activity
+name: Notify PR Activity to All Collaborators
 
 on:
   pull_request:
-    branches:
-      - master  
-  workflow_dispatch:
+    types: [opened, closed]
 
 jobs:
-  notify:
+  email_notification:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send notification on PR activity
-        uses: slackapi/slack-github-action@v1
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
         with:
-          payload: '{"text": "PR #${{ github.event.pull_request.number }} was ${{ github.event.action }} by @${{ github.actor }}."}'
-        env:
-          fix(SLACK_API_TOKEN: ${{ secrets.SLACK_API_TOKEN }}
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_PASSWORD }}
+          subject: "GitHub PR Notification"
+          to: ${{ secrets.EMAIL_RECIPIENTS }}
+          from: ${{ secrets.GMAIL_USERNAME }}
+          body: |
+            Hello,
+            
+            A pull request in the repository ${{ github.repository }} has been ${{ github.event.action }}.
+
+            Pull Request #${{ github.event.pull_request.number }}
+            Title: ${{ github.event.pull_request.title }}
+            Author: @${{ github.actor }}
+            URL: ${{ github.event.pull_request.html_url }}
+
+            Best regards,
+            GitHub Actions Bot
