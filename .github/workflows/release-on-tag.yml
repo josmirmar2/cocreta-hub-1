@@ -9,6 +9,14 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      packages: write
+      pull-requests: write
+      repository-projects: write
+      security-events: write
+      statuses: write
 
     steps:
       - name: Checkout repository
@@ -23,9 +31,9 @@ jobs:
           echo "COMMIT_MESSAGE=${COMMIT_MESSAGE}" >> $GITHUB_ENV
           
           if echo "${COMMIT_MESSAGE}" | grep -qE '^feat\('; then
-            echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
+            echo "RELEASE_TYPE=major" >> $GITHUB_ENV
           elif echo "${COMMIT_MESSAGE}" | grep -qE '^fix\('; then
-            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+            echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
           elif echo "${COMMIT_MESSAGE}" | grep -qE '^refactor\('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
           elif echo "${COMMIT_MESSAGE}" | grep -qE '^test\('; then
@@ -34,7 +42,6 @@ jobs:
             echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
             exit 1
           fi
-
 
       - name: Determine new version
         id: determine_version
