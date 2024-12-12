@@ -27,8 +27,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch all branches
-        run: git fetch --prune --unshallow
+      - name: Fetch specific branch
+        run: git fetch origin main
         
       - name: Determine release type from commits
         id: determine_release_type
