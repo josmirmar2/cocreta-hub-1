@@ -24,35 +24,37 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Crear y activar el entorno virtual
+          echo "Creating and activating virtual environment..."
           python -m venv venv
           source venv/bin/activate
           
-          # Actualizar pip
+          echo "Upgrading pip..."
           pip install --upgrade pip
           
-          # Instalar dependencias
+          echo "Installing dependencies from requirements.txt..."
           pip install -r requirements.txt
+          
+          echo "Installing the current package..."
           pip install -e ./
           
-          # Asegurarse de que flask esté disponible
+          echo "Ensuring Flask is available..."
           pip install flask
 
       - name: Initialize Application
         id: run-app
         run: |
-          # Iniciar la aplicación Flask en segundo plano
+          echo "Starting Flask application in the background..."
           nohup flask run --host=0.0.0.0 --reload --debug > app.log 2>&1 & 
           
-          # Esperar a que la aplicación se inicialice
-          sleep 10
+          echo "Waiting for the application to initialize..."
+          sleep 3
           
-          # Verificar si hay errores en el log de la aplicación
+          echo "Checking for errors in app.log..."
           if grep -i "error" app.log; then
             echo "Initialization failed. Check app.log for details." > error.log
           fi
           
-          # Verificar si hay errores
+          echo "Checking if error.log exists and is not empty..."
           if [ -s error.log ]; then
             echo "error=true" >> $GITHUB_ENV
           else
@@ -62,20 +64,15 @@ jobs:
       - name: Check Application Accessibility
         id: check-access
         run: |
-          # Intentar acceder a la aplicación en el puerto 5000
+          echo "Attempting to access the application on port 5000..."
           if ! curl -s http://localhost:5000 > /dev/null; then
             echo "Application is not accessible on port 5000." > access_error.log
             echo "error=true" >> $GITHUB_ENV
           fi
           
-          # Verificar si hay errores de acceso
+          echo "Checking if access_error.log exists and is not empty..."
           if [ -s access_error.log ]; then
             echo "error=true" >> $GITHUB_ENV
-          fi
-
-          # Imprimir el contenido de access_error.log si existe
-          if [ -f access_error.log ]; then
-            cat access_error.log
           fi
 
       - name: Create an issue for bugs
@@ -94,6 +91,6 @@ jobs:
         if: env.error == 'true'
         run: |
           echo "Initialization or Accessibility failed. Printing logs:"
-          cat error.log || true
-          cat access_error.log || true
-          cat app.log || true
+          cat error.log || echo "error.log not found"
+          cat access_error.log || echo "access_error.log not found"
+          cat app.log || echo "app.log not found"
