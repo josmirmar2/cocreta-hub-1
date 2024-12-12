@@ -1,9 +1,13 @@
 name: Run Selenium Tests
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
-    types: [opened, synchronize, reopened]
-workflow_dispatch:
+    branches:
+      - master  
+  workflow_dispatch:
 
 jobs:
   check-associated-issue:
