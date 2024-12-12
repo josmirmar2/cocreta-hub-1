@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main  
   workflow_dispatch:
 
 jobs:
@@ -24,24 +27,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Extract commit message
-        id: extract_commit
+      - name: Determine release type from commits
+        id: determine_release_type
         run: |
-          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-          echo "COMMIT_MESSAGE=${COMMIT_MESSAGE}" >> $GITHUB_ENV
-          
-          if echo "${COMMIT_MESSAGE}" | grep -qE '^feat\('; then
-            echo "RELEASE_TYPE=major" >> $GITHUB_ENV
-          elif echo "${COMMIT_MESSAGE}" | grep -qE '^fix\('; then
-            echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
-          elif echo "${COMMIT_MESSAGE}" | grep -qE '^refactor\('; then
-            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          elif echo "${COMMIT_MESSAGE}" | grep -qE '^test\('; then
-            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          else
-            echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
-            exit 1
-          fi
+          RELEASE_TYPE="patch"
+
+          # Iterar sobre todos los commits y buscar los tipos
+          while IFS= read -r COMMIT_MESSAGE; do
+            if echo "$COMMIT_MESSAGE" | grep -qE '^feat\('; then
+              RELEASE_TYPE="minor"
+            elif echo "$COMMIT_MESSAGE" | grep -qE '^fix\('; then
+              # Si hay un fix pero no hay "minor", se mantiene como patch
+              [ "$RELEASE_TYPE" != "minor" ] && RELEASE_TYPE="patch"
+            elif echo "$COMMIT_MESSAGE" | grep -qE '^refactor\('; then
+              [ "$RELEASE_TYPE" != "minor" ] && RELEASE_TYPE="patch"
+            fi
+          done < <(git log origin/main..HEAD --pretty=format:"%s")
+
+          echo "RELEASE_TYPE=${RELEASE_TYPE}" >> $GITHUB_ENV
+          echo "Release type: $RELEASE_TYPE"
 
       - name: Determine new version
         id: determine_version
@@ -58,7 +62,7 @@ jobs:
             PATCH=$(echo $LAST_VERSION | cut -d. -f3)
           fi
 
-          case ${{ env.RELEASE_TYPE }} in
+          case $RELEASE_TYPE in
             minor)
               MINOR=$((MINOR + 1))
               PATCH=0
@@ -84,6 +88,6 @@ jobs:
         with:
           tag_name: ${{ env.NEW_VERSION }}
           release_name: "Release ${{ env.NEW_VERSION }}"
-          body: "Automated release based on commit message."
+          body: "Automated release based on commit messages."
           draft: false
           prerelease: false
