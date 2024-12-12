@@ -35,7 +35,7 @@ jobs:
         run: |
 
           # Inicializar el tipo de release como el menos importante
-          RELEASE_TYPE="patch"
+          RELEASE_TYPE="unknown"
 
           # Iterar sobre todos los commits y buscar los tipos
           while IFS= read -r COMMIT_MESSAGE; do
