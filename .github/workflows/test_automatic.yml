@@ -1,0 +1,55 @@
+name: Run Selenium Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+workflow_dispatch:
+
+jobs:
+  check-associated-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install GitHub CLI
+        uses: actions/setup-gh@v2
+
+      - name: Retrieve linked issue
+        id: get-issue
+        run: |
+          PR_NUMBER=$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)
+          ISSUE=$(gh pr view $PR_NUMBER --json linkedIssues --jq '.linkedIssues[0].number')
+
+          if [[ -z "$ISSUE" ]]; then
+            echo "No issue linked to this PR. Exiting."
+            exit 1
+          fi
+
+          echo "Linked issue: $ISSUE"
+          echo "issue=$ISSUE" >> $GITHUB_ENV
+
+      - name: Check issue labels
+        id: check-labels
+        run: |
+          ISSUE_NUMBER=${{ env.issue }}
+          LABELS=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name')
+
+          if [[ "$LABELS" == *"test"* ]]; then
+            echo "Test label found."
+            echo "run_tests=true" >> $GITHUB_ENV
+          else
+            echo "No test label found. Exiting."
+            echo "run_tests=false" >> $GITHUB_ENV
+            exit 0
+          fi
+
+      - name: Run Selenium tests
+        if: env.run_tests == 'true'
+        run: |
+          # Instalar dependencias
+          pip install -r requirements.txt
+
+          # Ejecutar solo los tests que siguen el patrón de nombre test_selenium.py
+          pytest -k "test_selenium" --maxfail=5 --disable-warnings
