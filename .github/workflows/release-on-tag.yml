@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
 
       - name: Fetch specific branch
-        run: git fetch origin main
+        run: git fetch origin master
         
       - name: Determine release type from commits
         id: determine_release_type
