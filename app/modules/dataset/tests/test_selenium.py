@@ -270,32 +270,6 @@ def test_button_explore_more_datasets():
         close_driver(driver)
 
 
-'''def test_check_button_functionality():
-    driver = initialize_driver()
-
-    try:
-        host = get_host_for_selenium_testing()
-
-        # Open the dataset page
-        driver.get(f"{host}{SAMPLE_DATASET_ROUTE}")
-        wait_for_page_to_load(driver)
-
-        # Test the 'Check' button functionality
-        check_button = driver.find_element(By.XPATH, "//button[contains(text(),'Check')]")
-        check_button.click()
-        time.sleep(1)  # Wait for check to complete
-
-        # Verify the check result
-        result_message = driver.find_element(By.CLASS_NAME, "check-result-message")
-        assert "Valid model" in result_message.text or "Syntax errors" in result_message.text, \
-            "Check button functionality failed"
-
-        print("Check button functionality works!")
-
-    finally:
-        close_driver(driver)'''
-
-
 
 
 # Call the test function
