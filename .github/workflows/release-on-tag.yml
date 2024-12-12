@@ -3,10 +3,10 @@ name: Release Automation
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main  
+      - master  
   workflow_dispatch:
 
 jobs:
@@ -35,12 +35,14 @@ jobs:
           # Iterar sobre todos los commits y buscar los tipos
           while IFS= read -r COMMIT_MESSAGE; do
             if echo "$COMMIT_MESSAGE" | grep -qE '^feat\('; then
-              RELEASE_TYPE="minor"
+              RELEASE_TYPE="major"
             elif echo "$COMMIT_MESSAGE" | grep -qE '^fix\('; then
               # Si hay un fix pero no hay "minor", se mantiene como patch
-              [ "$RELEASE_TYPE" != "minor" ] && RELEASE_TYPE="patch"
+              [ "$RELEASE_TYPE" != "major" ] && RELEASE_TYPE="minor"
             elif echo "$COMMIT_MESSAGE" | grep -qE '^refactor\('; then
-              [ "$RELEASE_TYPE" != "minor" ] && RELEASE_TYPE="patch"
+              [ "$RELEASE_TYPE" != "minor" ] && [ "$RELEASE_TYPE" != "major" ] && RELEASE_TYPE="patch"
+            elif echo "$COMMIT_MESSAGE" | grep -qE '^tests\('; then
+              [ "$RELEASE_TYPE" != "minor" ] && [ "$RELEASE_TYPE" != "major" ] && RELEASE_TYPE="patch"
             fi
           done < <(git log origin/main..HEAD --pretty=format:"%s")
 
