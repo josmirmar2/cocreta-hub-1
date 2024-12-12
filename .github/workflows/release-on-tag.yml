@@ -22,17 +22,6 @@ jobs:
           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
           echo "COMMIT_MESSAGE=${COMMIT_MESSAGE}" >> $GITHUB_ENV
           
-          if echo "${COMMIT_MESSAGE}" | grep -q 'fix'; then
-            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          elif echo "${COMMIT_MESSAGE}" | grep -q 'feat'; then
-            echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
-          elif echo "${COMMIT_MESSAGE}" | grep -q 'refactor'; then
-            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          elif echo "${COMMIT_MESSAGE}" | grep -q 'test'; then
-            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          else
-            echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
-            exit 1 # Falla si no se reconoce el tipo de release
 
       - name: Determine new version
         id: determine_version
