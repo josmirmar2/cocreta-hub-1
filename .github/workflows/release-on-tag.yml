@@ -2,32 +2,32 @@ name: Release Automation
 
 on:
   push:
-    tags:
-      - 'v*' 
+    branches:
+      - main
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Extract tag information
-        id: extract_tag
+      - name: Extract commit message
+        id: extract_commit
         run: |
-          TAG_NAME=${GITHUB_REF##*/}
-          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "COMMIT_MESSAGE=${COMMIT_MESSAGE}" >> $GITHUB_ENV
           
-          if echo "${TAG_NAME}" | grep -q 'fix('; then
+          if echo "${COMMIT_MESSAGE}" | grep -q 'fix('; then
+            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+          elif echo "${COMMIT_MESSAGE}" | grep -q 'feat('; then
             echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
-          elif echo "${TAG_NAME}" | grep -q 'feat('; then
-            echo "RELEASE_TYPE=major" >> $GITHUB_ENV
-          elif echo "${TAG_NAME}" | grep -q 'refactor('; then
+          elif echo "${COMMIT_MESSAGE}" | grep -q 'refactor('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          elif echo "${TAG_NAME}" | grep -q 'test('; then
+          elif echo "${COMMIT_MESSAGE}" | grep -q 'test('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          else
-            echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
           fi
+
+      - name: Print release type
+        run: echo "The release type is ${{ env.RELEASE_TYPE }}"
