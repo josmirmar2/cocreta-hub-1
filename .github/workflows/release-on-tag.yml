@@ -41,7 +41,7 @@ jobs:
               [ "$RELEASE_TYPE" != "major" ] && RELEASE_TYPE="minor"
             elif echo "$COMMIT_MESSAGE" | grep -qE '^refactor\('; then
               [ "$RELEASE_TYPE" != "minor" ] && [ "$RELEASE_TYPE" != "major" ] && RELEASE_TYPE="patch"
-            elif echo "$COMMIT_MESSAGE" | grep -qE '^tests\('; then
+            elif echo "$COMMIT_MESSAGE" | grep -qE '^test\('; then
               [ "$RELEASE_TYPE" != "minor" ] && [ "$RELEASE_TYPE" != "major" ] && RELEASE_TYPE="patch"
             fi
           done < <(git log origin/main..HEAD --pretty=format:"%s")
