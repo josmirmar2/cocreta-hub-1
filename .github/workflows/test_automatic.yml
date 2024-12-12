@@ -16,28 +16,16 @@ jobs:
 
       - name: Install GitHub CLI
         run: |
-        sudo apt update
-        sudo apt install -y gh
+          sudo apt update
+          sudo apt install -y gh
 
-      - name: Retrieve linked issue
-        id: get-issue
+      - name: Retrieve labels from the pull request
+        id: get-pr-labels
         run: |
           PR_NUMBER=$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)
-          ISSUE=$(gh pr view $PR_NUMBER --json linkedIssues --jq '.linkedIssues[0].number')
+          LABELS=$(gh pr view $PR_NUMBER --json labels --jq '.labels[].name')
 
-          if [[ -z "$ISSUE" ]]; then
-            echo "No issue linked to this PR. Exiting."
-            exit 1
-          fi
-
-          echo "Linked issue: $ISSUE"
-          echo "issue=$ISSUE" >> $GITHUB_ENV
-
-      - name: Check issue labels
-        id: check-labels
-        run: |
-          ISSUE_NUMBER=${{ env.issue }}
-          LABELS=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name')
+          echo "Labels found in PR: $LABELS"
 
           if [[ "$LABELS" == *"test"* ]]; then
             echo "Test label found."
