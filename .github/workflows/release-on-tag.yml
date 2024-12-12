@@ -20,23 +20,55 @@ jobs:
           echo "COMMIT_MESSAGE=${COMMIT_MESSAGE}" >> $GITHUB_ENV
           
           if echo "${COMMIT_MESSAGE}" | grep -q 'fix('; then
-            echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
+            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
           elif echo "${COMMIT_MESSAGE}" | grep -q 'feat('; then
-            echo "RELEASE_TYPE=major" >> $GITHUB_ENV
+            echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
           elif echo "${COMMIT_MESSAGE}" | grep -q 'refactor('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
           elif echo "${COMMIT_MESSAGE}" | grep -q 'test('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
           else
             echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
+            exit 1 # Falla si no se reconoce el tipo de release
+
+      - name: Determine next version
+        id: set_version
+        run: |
+          # Obtén la última versión de la etiqueta
+          LAST_VERSION=$(git tag --list | sort -V | tail -n 1 || echo "v0.0.0")
+          echo "Última versión: $LAST_VERSION"
+
+          # Incrementa la versión basada en el tipo de release
+          MAJOR=$(echo $LAST_VERSION | cut -d. -f1 | sed 's/v//')
+          MINOR=$(echo $LAST_VERSION | cut -d. -f2)
+          PATCH=$(echo $LAST_VERSION | cut -d. -f3)
+
+          case $RELEASE_TYPE in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+          echo "Nueva versión: $NEW_VERSION"
 
       - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.sha }}
-          release_name: "Release ${{ github.sha }}"
+          tag_name: ${{ env.NEW_VERSION }}
+          release_name: "Release ${{ env.NEW_VERSION }}"
           body: "Automated release based on commit message."
           draft: false
           prerelease: false
