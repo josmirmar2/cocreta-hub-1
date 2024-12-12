@@ -28,8 +28,8 @@ jobs:
           fetch-depth: 0
 
       - name: Fetch all branches
-        run: git fetch --all
-
+        run: git fetch --prune --unshallow
+        
       - name: Determine release type from commits
         id: determine_release_type
         run: |
@@ -43,18 +43,17 @@ jobs:
             if echo "$COMMIT_MESSAGE" | grep -qE '^feat\('; then
               RELEASE_TYPE="major"
               echo "Se ha detectado uno de tipo feat"
-              break # Si encontramos un "major", no es necesario seguir iterando
+              break
             elif echo "$COMMIT_MESSAGE" | grep -qE '^fix\('; then
-              # Si aún no es "major", lo elevamos a "minor"
-              [ "$RELEASE_TYPE" != "major" ] && RELEASE_TYPE="minor"
+              [ "$RELEASE_TYPE" != "minor" ] && RELEASE_TYPE="minor"
+              echo "Se ha detectado uno de tipo fix"
+              break
             elif echo "$COMMIT_MESSAGE" | grep -qE '^refactor\('; then
-              # Si aún no es "minor" o "major", lo dejamos como "patch"
               [ "$RELEASE_TYPE" != "minor" ] && [ "$RELEASE_TYPE" != "major" ] && RELEASE_TYPE="patch"
             elif echo "$COMMIT_MESSAGE" | grep -qE '^test\('; then
-              # Igual que "refactor", solo cambiamos si no es "minor" o "major"
               [ "$RELEASE_TYPE" != "minor" ] && [ "$RELEASE_TYPE" != "major" ] && RELEASE_TYPE="patch"
             fi
-          done < <(git log origin/main..HEAD --pretty=format:"%s")
+          done < <(git log origin/master..HEAD --pretty=format:"%s")
 
           echo "RELEASE_TYPE=${RELEASE_TYPE}" >> $GITHUB_ENV
           echo "Release type: $RELEASE_TYPE"
