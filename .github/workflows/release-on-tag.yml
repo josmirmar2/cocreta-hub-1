@@ -20,13 +20,13 @@ jobs:
           TAG_NAME=${GITHUB_REF##*/}
           echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
           
-          if echo "${TAG_NAME}" | grep -q 'fix'; then
+          if echo "${TAG_NAME}" | grep -q 'fix('; then
             echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
-          elif echo "${TAG_NAME}" | grep -q 'feat'; then
+          elif echo "${TAG_NAME}" | grep -q 'feat('; then
             echo "RELEASE_TYPE=major" >> $GITHUB_ENV
-          elif echo "${TAG_NAME}" | grep -q 'refactor'; then
+          elif echo "${TAG_NAME}" | grep -q 'refactor('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          elif echo "${TAG_NAME}" | grep -q 'tests'; then
+          elif echo "${TAG_NAME}" | grep -q 'test('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
           else
             echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
