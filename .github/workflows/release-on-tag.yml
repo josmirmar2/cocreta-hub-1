@@ -27,8 +27,22 @@ jobs:
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
           elif echo "${COMMIT_MESSAGE}" | grep -q 'test('; then
             echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
-          fi
+          else
+            echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
+          
+      - name: Create Release
+        if: env.RELEASE_TYPE != 'unknown'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
+          body: |
+            Automated release based on commit message:
+            ${{ env.COMMIT_MESSAGE }}
+          draft: false
+          prerelease: false
 
       - name: Print release type
         run: echo "The release type is ${{ env.RELEASE_TYPE }}"
-        
