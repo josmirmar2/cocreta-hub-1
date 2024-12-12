@@ -22,6 +22,19 @@ jobs:
           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
           echo "COMMIT_MESSAGE=${COMMIT_MESSAGE}" >> $GITHUB_ENV
           
+          if echo "${COMMIT_MESSAGE}" | grep -qE '^feat\('; then
+            echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
+          elif echo "${COMMIT_MESSAGE}" | grep -qE '^fix\('; then
+            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+          elif echo "${COMMIT_MESSAGE}" | grep -qE '^refactor\('; then
+            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+          elif echo "${COMMIT_MESSAGE}" | grep -qE '^test\('; then
+            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+          else
+            echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
+            exit 1
+          fi
+
 
       - name: Determine new version
         id: determine_version
